@@ -2,6 +2,7 @@ package ru.netology.jdbc0301.repository;
 
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -9,7 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Map;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -17,18 +18,11 @@ import java.util.stream.Collectors;
 public class Repo {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private static String script = read("getProductsByName.sql");
 
     //МЕТОД ВОЗВРАЩАЮЩИЙ СПИСОК ЗАКАЗОВ
-    public String getProductName(String name) {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        //ПОЛУЧАЕМ ТАБЛИЦУ ИЗ mySQL СОГЛАСНО ПЕРЕДАННОМУ SQL СКРИПТУ
-        var setSql = namedParameterJdbcTemplate.queryForRowSet(read("getProductsByName.sql"), Map.of("name", name));
-        //ИЗ ПОЛУЧЕННО ТАБЛИЦЫ ПОЛУЧАЕМ ВСЕ ТРУБЕМЫЕ ПОЛЯ ПО НАЗВ СТОБЛЦА
-        while (setSql.next()) {
-            stringBuilder.append(setSql.getString("product_name") + ", ");
-        }
-        return stringBuilder.toString();
+    public List<String> getProductName(String name) {
+        return namedParameterJdbcTemplate.queryForList(script, new MapSqlParameterSource("name", name), String.class);
     }
 
 
